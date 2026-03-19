@@ -1,5 +1,4 @@
 # Tripleten web_project_around_pt
-
 🚀 Sobre o Projeto
 Este projeto foi desenvolvido como parte do curso de Desenvolvimento Web da TripleTen. O foco principal foi a criação de uma interface dinâmica utilizando HTML5, CSS3 (Metodologia BEM) e JavaScript assíncrono, garantindo que a experiência do usuário seja fluida e responsiva.
 
