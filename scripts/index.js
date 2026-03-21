@@ -9,11 +9,6 @@ const initialCards = [
 
 
 
-initialCards.forEach((item) => {
-
-});
-
-
 const editButton = document.querySelector('.profile__edit-button');
 const editPopup = document.querySelector('#edit-popup');
 const editCloseButton = editPopup.querySelector('.popup__close');
