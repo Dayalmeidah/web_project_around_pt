@@ -89,6 +89,7 @@
 
 .popup_is-opened {
   display: flex;
+  
 }
 
 .popup__content_content_image {
@@ -156,4 +157,25 @@
     max-width: 75vw;
     padding: 0;
   }
+}
+
+.popup__error {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.popup__button_disabled {
+  border: 1px solid #000000;
+  cursor: default;
+}
+
+.popup__input_type_error {
+  border-bottom: 1px solid red;
+}
+
+.popup_opened {
+  display: flex; 
+  visibility: visible;
+  opacity: 1;
 }

@@ -136,3 +136,113 @@ function setupEventListeners() {
 
 initialCards.forEach((card) => renderCard(card.name, card.link, cardsContainer));
 setupEventListeners();
+
+const jobInput = editForm.querySelector('.popup__input_type_description');
+const submitButton = editForm.querySelector('.popup__button');
+
+const showInputError = (inputElement, errorMessage) => {
+  const errorElement = editForm.querySelector(`#${inputElement.id}-error`);
+  inputElement.classList.add("popup__input_type_error");
+  errorElement.textContent = errorMessage;
+};
+
+const hideInputError = (inputElement) => {
+  const errorElement = editForm.querySelector(`#${inputElement.id}-error`);
+  inputElement.classList.remove("popup__input_type_error");
+  errorElement.textContent = "";
+};
+
+const checkInputValidity = (inputElement) => {
+  if (!inputElement.validity.valid) {
+    showInputError(inputElement, inputElement.validationMessage);
+  } else {
+    hideInputError(inputElement);
+  }
+};
+
+const toggleButtonState = () => {
+  if (!nameInput.validity.valid || !jobInput.validity.valid) {
+    submitButton.classList.add("popup__button_disabled");
+    submitButton.disabled = true;
+  } else {
+    submitButton.classList.remove("popup__button_disabled");
+    submitButton.disabled = false;
+  }
+};
+
+editForm.addEventListener('input', (evt) => {
+  const target = evt.target;
+  checkInputValidity(target);
+  toggleButtonState();
+});
+
+toggleButtonState();
+
+const cardForm = document.querySelector('#new-card-form');
+const cardTitleInput = cardForm.querySelector('.popup__input_type_card-name');
+const cardUrlInput = cardForm.querySelector('.popup__input_type_url');
+const cardSubmitButton = cardForm.querySelector('.popup__button');
+
+const validateInput = (formElement, inputElement) => {
+  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
+  if (!inputElement.validity.valid) {
+    inputElement.classList.add("popup__input_type_error");
+    errorElement.textContent = inputElement.validationMessage;
+  } else {
+    inputElement.classList.remove("popup__input_type_error");
+    errorElement.textContent = "";
+  }
+};
+
+const toggleButton = (inputs, buttonElement) => {
+  
+  const isFormValid = inputs.every(input => input.validity.valid);
+  
+  if (isFormValid) {
+    buttonElement.classList.remove("popup__button_disabled");
+    buttonElement.disabled = false;
+  } else {
+    buttonElement.classList.add("popup__button_disabled");
+    buttonElement.disabled = true;
+  }
+
+cardForm.addEventListener('input', (evt) => {
+  validateInput(cardForm, evt.target);
+  toggleButton([cardTitleInput, cardUrlInput], cardSubmitButton);
+});
+}
+
+toggleButton([cardTitleInput, cardUrlInput], cardSubmitButton);
+
+
+function closePopup(popup) {
+  popup.classList.remove('popup_opened');
+}
+
+
+const setOverlayCloseEventListeners = () => {
+ 
+  const popupList = Array.from(document.querySelectorAll('.popup'));
+
+  popupList.forEach((popup) => {
+    popup.addEventListener('mousedown', (evt) => {
+     
+      if (evt.target.classList.contains('popup')) {
+        closePopup(popup);
+      }
+    });
+  });
+};
+
+setOverlayCloseEventListeners();
+
+
+const handleEscClose = (evt) => {
+  if (evt.key === "Escape") {
+
+    const openedPopup = document.querySelector(".popup_opened");
+    if (openedPopup) {
+      closePopup(openedPopup);
+    }
+  }
+};
