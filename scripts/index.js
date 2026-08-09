@@ -187,17 +187,17 @@ const validateInput = (formElement, inputElement) => {
   const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
   if (!inputElement.validity.valid) {
     inputElement.classList.add("popup__input_type_error");
-    errorElement.textContent = inputElement.validationMessage;
+    if (errorElement) errorElement.textContent = inputElement.validationMessage;
   } else {
     inputElement.classList.remove("popup__input_type_error");
-    errorElement.textContent = "";
+    if (errorElement) errorElement.textContent = "";
   }
 };
 
 const toggleButton = (inputs, buttonElement) => {
-  
+
   const isFormValid = inputs.every(input => input.validity.valid);
-  
+
   if (isFormValid) {
     buttonElement.classList.remove("popup__button_disabled");
     buttonElement.disabled = false;
@@ -205,44 +205,24 @@ const toggleButton = (inputs, buttonElement) => {
     buttonElement.classList.add("popup__button_disabled");
     buttonElement.disabled = true;
   }
+}; // Chave fechada corretamente aqui!
 
 cardForm.addEventListener('input', (evt) => {
   validateInput(cardForm, evt.target);
   toggleButton([cardTitleInput, cardUrlInput], cardSubmitButton);
 });
-}
+
 
 toggleButton([cardTitleInput, cardUrlInput], cardSubmitButton);
 
-
-function closePopup(popup) {
-  popup.classList.remove('popup_opened');
-}
-
-
-const setOverlayCloseEventListeners = () => {
- 
-  const popupList = Array.from(document.querySelectorAll('.popup'));
-
-  popupList.forEach((popup) => {
-    popup.addEventListener('mousedown', (evt) => {
-     
-      if (evt.target.classList.contains('popup')) {
-        closePopup(popup);
-      }
-    });
-  });
-};
-
-setOverlayCloseEventListeners();
-
-
+// Fechar com ESC (usando a classe 'popup_is-opened')
 const handleEscClose = (evt) => {
   if (evt.key === "Escape") {
-
-    const openedPopup = document.querySelector(".popup_opened");
+    const openedPopup = document.querySelector(".popup_is-opened");
     if (openedPopup) {
-      closePopup(openedPopup);
+      closeModal(openedPopup);
     }
   }
 };
+
+document.addEventListener('keydown', handleEscClose);
