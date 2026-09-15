@@ -160,7 +160,7 @@ const checkInputValidity = (inputElement) => {
   }
 };
 
-const toggleButtonState = () => {
+const toggleButtonState = () => { 
   if (!nameInput.validity.valid || !jobInput.validity.valid) {
     submitButton.classList.add("popup__button_disabled");
     submitButton.disabled = true;
