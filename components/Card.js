@@ -31,19 +31,28 @@ export default class Card {
     return this._element;
   }
 
+  _handleLikeClick() {
+    // Correção da classe do modificador para alternar o estado visual do botão de curtir
+    this._likeButton.classList.toggle('card__like-button_is-active');
+  }
+
+  _handleDeleteClick() {
+    this._element.remove();
+    this._element = null;
+  }
+
   _setEventListeners() {
-    // Curtir
+    // Ouvinte do botão de curtir
     this._likeButton.addEventListener('click', () => {
-      this._likeButton.classList.toggle('card__like-button_active');
+      this._handleLikeClick();
     });
 
-    // Apagar
+    // Ouvinte do botão de eliminar
     this._deleteButton.addEventListener('click', () => {
-      this._element.remove();
-      this._element = null;
+      this._handleDeleteClick();
     });
 
-    // Abrir pop-up da imagem ampliada
+    // Ouvinte da imagem para abrir o pop-up
     this._cardImage.addEventListener('click', () => {
       this._handleCardClick({ name: this._name, link: this._link });
     });

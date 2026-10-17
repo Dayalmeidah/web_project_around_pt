@@ -50,7 +50,6 @@ const cardList = new Section(
 cardList.renderItems();
 
 // 4. Pop-up de Adicionar Novo Cartão
-// 4. Pop-up de Adicionar Novo Cartão
 const newCardPopup = new PopupWithForm('#new-card-popup', (formData) => {
   const newCardElement = createCard({
     name: formData.name,
@@ -65,7 +64,7 @@ newCardPopup.setEventListeners();
 const editProfilePopup = new PopupWithForm('#edit-popup', (formData) => {
   userInfo.setUserInfo({
     name: formData.name,
-    description: formData.description || formData['about']
+    description: formData.about
   });
   editProfilePopup.close();
 });
