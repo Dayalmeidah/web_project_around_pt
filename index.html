@@ -19,7 +19,10 @@
 
     <main class="content">
       <section class="profile page__section">
-        <img class="profile__image" src="./images/avatar.jpg" alt="Avatar" />
+        <div class="profile__image-container">
+          <img class="profile__image" src="./images/avatar.jpg" alt="Avatar" />
+          <!-- Se o seu projeto usar um botão ou overlay de edição de avatar na imagem, pode adicioná-lo aqui -->
+        </div>
         <div class="profile__info">
           <h1 class="profile__title">Jacques Cousteau</h1>
           <button aria-label="Editar perfil" class="profile__edit-button" type="button"></button>
@@ -45,13 +48,14 @@
         </li>
       </template>
 
-
+      
     </main>
 
     <footer class="footer page__section">
       <p class="footer__copyright">© 2025 Around The U.S.</p>
     </footer>
 
+    <!-- Pop-up de Editar Perfil -->
     <div class="popup" id="edit-popup">
       <div class="popup__content">
         <button aria-label="Fechar pop-up" class="popup__close" type="button"></button>
@@ -74,6 +78,7 @@
       </div>
     </div>
 
+    <!-- Pop-up de Adicionar Novo Cartão -->
     <div class="popup" id="new-card-popup">
       <div class="popup__content">
         <button aria-label="Fechar pop-up" class="popup__close" type="button"></button>
@@ -96,6 +101,7 @@
       </div>
     </div>
 
+    <!-- Pop-up de Visualização de Imagem -->
     <div class="popup" id="image-popup">
       <div class="popup__content popup__content_content_image">
         <button aria-label="Fechar pop-up" class="popup__close" type="button"></button>
@@ -103,6 +109,34 @@
         <p class="popup__caption"></p>
       </div>
     </div>
+
+    <!-- NOVO: Pop-up de Confirmação de Exclusão (Corrige o erro anterior) -->
+    <div class="popup popup_type_confirm" id="confirm-popup">
+      <div class="popup__content">
+        <button aria-label="Fechar pop-up" class="popup__close" type="button"></button>
+        <h3 class="popup__title">Tem certeza?</h3>
+        <form class="popup__form" id="confirm-form" novalidate>
+          <button class="button popup__button" type="submit">Sim</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- NOVO: Pop-up de Atualização do Avatar (Necessário para o Passo 9) -->
+    <div class="popup popup_type_avatar" id="avatar-popup">
+      <div class="popup__content">
+        <button aria-label="Fechar pop-up" class="popup__close" type="button"></button>
+        <h3 class="popup__title">Alterar a foto do perfil</h3>
+        <form class="popup__form" id="avatar-form" novalidate>
+          <div class="popup__field">
+            <input class="popup__input popup__input_type_url" name="avatar" id="avatar-url-input"
+              placeholder="Link da foto de perfil" type="url" required />
+            <span class="popup__error" id="avatar-url-input-error"></span>
+          </div>
+          <button class="button popup__button" type="submit">Salvar</button>
+        </form>
+      </div>
+    </div>
+
   </div>
   <script type="module" src="./pages/index.js" defer></script>
 </body>
