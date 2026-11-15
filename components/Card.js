@@ -2,28 +2,36 @@ export default class Card {
   constructor({ data, userId, templateSelector, handleCardClick, handleLikeClick, handleDeleteClick }) {
     this._name = data.name;
     this._link = data.link;
-    this._likes = data.likes || [];
     this._cardId = data._id;
     this._ownerId = data.owner._id || data.owner; // ID do dono do cartão
-    this._userId = userId; // ID do seu usuário logado
-    
+    this._userId = userId; // ID do usuário logado
+
+    // A API devolve `isLiked` (boolean). Se não vier, calcula pelo array `likes`.
+    this._isLiked = this._getInitialLikeState(data);
+
     this._templateSelector = templateSelector;
     this._handleCardClick = handleCardClick;
     this._handleLikeClick = handleLikeClick;
     this._handleDeleteClick = handleDeleteClick;
   }
 
+  _getInitialLikeState(data) {
+    if (typeof data.isLiked === 'boolean') {
+      return data.isLiked;
+    }
+    const likes = data.likes || [];
+    return likes.some((user) => user._id === this._userId || user === this._userId);
+  }
+
   // Obtém o template HTML do DOM
   _getTemplate() {
-    const cardElement = document
+    return document
       .querySelector(this._templateSelector)
       .content
       .querySelector('.card')
       .cloneNode(true);
-    return cardElement;
   }
 
-  // Verifica se o cartão foi curtido pelo usuário atual
   isLiked() {
     return this._isLiked;
   }
@@ -32,46 +40,37 @@ export default class Card {
     return this._cardId;
   }
 
-  // Atualiza o estado visual do like
+  // Atualiza o estado visual do like (coração preto quando curtido)
   setLikeState(isLiked) {
     this._isLiked = isLiked;
-    if (this._isLiked) {
-      this._likeButton.classList.add('card__like-button_active');
-    } else {
-      this._likeButton.classList.remove('card__like-button_active');
-    }
+    this._likeButton.classList.toggle('card__like-button_active', this._isLiked);
   }
 
-  // Remove o cartão da DOM
+  // Remove o cartão do DOM
   removeCard() {
     this._element.remove();
     this._element = null;
   }
 
-  // Adiciona os event listeners aos elementos do cartão
   _setEventListeners() {
-    // Like
     this._likeButton.addEventListener('click', () => {
       this._handleLikeClick(this);
     });
 
-    // Delete (Lixeira)
     if (this._deleteButton) {
       this._deleteButton.addEventListener('click', () => {
         this._handleDeleteClick(this);
       });
     }
 
-    // Zoom da Imagem
     this._cardImage.addEventListener('click', () => {
       this._handleCardClick(this._name, this._link);
     });
   }
 
-  // Gera e preenche o cartão com os dados
   generateCard() {
     this._element = this._getTemplate();
-    
+
     this._cardImage = this._element.querySelector('.card__image');
     this._cardTitle = this._element.querySelector('.card__title');
     this._likeButton = this._element.querySelector('.card__like-button');
@@ -81,13 +80,12 @@ export default class Card {
     this._cardImage.alt = this._name;
     this._cardTitle.textContent = this._name;
 
-    // Define o estado inicial do like (verifica se o seu ID está no array de likes)
-    const isAlreadyLiked = this._likes.some(user => user._id === this._userId || user === this._userId);
-    this.setLikeState(isAlreadyLiked);
+    this.setLikeState(this._isLiked);
 
-    // Regra da Lixeira: Oculta o botão de excluir se o cartão NÃO foi criado por você
+    // Só mostra a lixeira nos cartões criados pelo usuário
     if (this._ownerId !== this._userId) {
-      this._deleteButton.remove(); // Remove o botão completamente se não for seu
+      this._deleteButton.remove();
+      this._deleteButton = null;
     }
 
     this._setEventListeners();

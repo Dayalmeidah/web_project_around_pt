@@ -11,12 +11,14 @@ import { validationConfig } from '../utils/constants.js';
 // Seletores dos elementos/botões da página
 const profileEditButton = document.querySelector('.profile__edit-button');
 const profileAddButton = document.querySelector('.profile__add-button');
+const profileAvatarButton = document.querySelector('.profile__avatar-button');
 const nameInput = document.querySelector('#name-input');
 const descriptionInput = document.querySelector('#description-input');
 
 // Seleção dos formulários para validação
 const editProfileForm = document.querySelector('#edit-profile-form');
 const newCardForm = document.querySelector('#new-card-form');
+const avatarForm = document.querySelector('#avatar-form');
 
 // 1. Instância do UserInfo
 const userInfo = new UserInfo({
@@ -39,25 +41,24 @@ function createCard(cardData, userId) {
     data: cardData,
     userId: userId,
     templateSelector: '#card-template',
-    
-    // Clique na imagem
+
     handleCardClick: (name, link) => {
       imagePopup.open({ name, link });
     },
 
-    // Clique no Like
     handleLikeClick: (cardInstance) => {
       const isLiked = cardInstance.isLiked();
       api.changeLikeCardStatus(cardInstance.getId(), !isLiked)
         .then((updatedCard) => {
-          cardInstance.setLikeState(updatedCard.isLiked);
+          // Usa a resposta da API; se não vier `isLiked`, usa o valor que acabou de ser enviado
+          const newState = typeof updatedCard.isLiked === 'boolean' ? updatedCard.isLiked : !isLiked;
+          cardInstance.setLikeState(newState);
         })
         .catch((err) => {
           console.log(`Erro ao alterar curtida: ${err}`);
         });
     },
 
-    // Clique na Lixeira (Exclusão)
     handleDeleteClick: (cardInstance) => {
       confirmPopup.open();
       confirmPopup.setSubmitAction(() => {
@@ -76,22 +77,21 @@ function createCard(cardData, userId) {
   return card.generateCard();
 }
 
-// 4. Instância do Section (inicialmente vazio, preenchido pelo Promise.all)
+// 4. Instância do Section (preenchida depois do Promise.all)
 let cardList;
 
 // 5. Pop-up de Adicionar Novo Cartão
 const newCardPopup = new PopupWithForm('#new-card-popup', (formData) => {
   const submitButton = newCardForm.querySelector('.popup__button');
   const originalText = submitButton.textContent;
-  submitButton.textContent = "Criando...";
+  submitButton.textContent = 'Criando...';
 
   api.addCard({
     name: formData.name,
     link: formData.link
   })
     .then((cardData) => {
-      const currentUserId = userInfo.getId(); 
-      const newCardElement = createCard(cardData, currentUserId);
+      const newCardElement = createCard(cardData, userInfo.getId());
       cardList.addItem(newCardElement);
       newCardPopup.close();
     })
@@ -108,7 +108,7 @@ newCardPopup.setEventListeners();
 const editProfilePopup = new PopupWithForm('#edit-popup', (formData) => {
   const submitButton = editProfileForm.querySelector('.popup__button');
   const originalText = submitButton.textContent;
-  submitButton.textContent = "Salvando...";
+  submitButton.textContent = 'Salvando...';
 
   api.updateUserInfo({
     name: formData.name,
@@ -127,48 +127,62 @@ const editProfilePopup = new PopupWithForm('#edit-popup', (formData) => {
 });
 editProfilePopup.setEventListeners();
 
-// 7. Carregamento Inicial de Dados do Servidor (Usuário + Cartões)
-let currentUserId = null;
+// 7. Pop-up de Alterar Foto do Perfil (Etapa 9)
+const avatarPopup = new PopupWithForm('#avatar-popup', (formData) => {
+  const submitButton = avatarForm.querySelector('.popup__button');
+  const originalText = submitButton.textContent;
+  submitButton.textContent = 'Salvando...';
 
+  api.updateAvatar(formData.avatar)
+    .then((userData) => {
+      userInfo.setUserInfo(userData);
+      avatarPopup.close();
+    })
+    .catch((err) => {
+      console.log(`Erro ao atualizar avatar: ${err}`);
+    })
+    .finally(() => {
+      submitButton.textContent = originalText;
+    });
+});
+avatarPopup.setEventListeners();
+
+// 8. Carregamento inicial de dados do servidor (usuário + cartões)
 Promise.all([api.getUserInfo(), api.getInitialCards()])
   .then(([userData, cards]) => {
-    // Guarda o ID do utilizador
-    currentUserId = userData._id;
-
-    // Configura os dados do usuário na página
     userInfo.setUserInfo(userData);
 
-    // Inicializa a secção de cartões com os dados do servidor
     cardList = new Section(
       {
         items: cards,
         renderer: (cardData) => {
-          const cardElement = createCard(cardData, currentUserId);
+          const cardElement = createCard(cardData, userData._id);
           cardList.addItem(cardElement);
         }
       },
       '.cards__list'
     );
 
-    // Renderiza os cartões iniciais
     cardList.renderItems();
   })
   .catch((err) => {
     console.log(`Erro ao carregar dados iniciais: ${err}`);
   });
 
-// 8. Ativação da Validação nos Formulários
+// 9. Validação dos formulários
 const editFormValidator = new FormValidator(validationConfig, editProfileForm);
 const newCardFormValidator = new FormValidator(validationConfig, newCardForm);
+const avatarFormValidator = new FormValidator(validationConfig, avatarForm);
 
 editFormValidator.enableValidation();
 newCardFormValidator.enableValidation();
+avatarFormValidator.enableValidation();
 
-// Listeners dos botões de abertura dos Pop-ups
+// Listeners dos botões de abertura dos pop-ups
 profileEditButton.addEventListener('click', () => {
   const currentUserData = userInfo.getUserInfo();
   nameInput.value = currentUserData.name;
-  descriptionInput.value = currentUserData.description;
+  descriptionInput.value = currentUserData.about; // era .description (undefined)
   editFormValidator.resetValidation();
   editProfilePopup.open();
 });
@@ -176,4 +190,9 @@ profileEditButton.addEventListener('click', () => {
 profileAddButton.addEventListener('click', () => {
   newCardFormValidator.resetValidation();
   newCardPopup.open();
+});
+
+profileAvatarButton.addEventListener('click', () => {
+  avatarFormValidator.resetValidation();
+  avatarPopup.open();
 });
